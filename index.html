@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krishan Music | Premium Player</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ================= EKDEAM BAWAAL CSS ================= */
+        :root {
+            --primary: #1db954; /* Spotify-like Green */
+            --bg-dark: #0f0f0f;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #121212, #181818, #0a0a0a);
+            color: white;
+            min-height: 100vh;
+            padding-bottom: 120px; /* Space for bottom player */
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(45deg, #1db954, #1ed760);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .version-tag {
+            font-size: 10px;
+            color: #888;
+            vertical-align: top;
+            margin-left: 5px;
+        }
+
+        /* Search Bar */
+        .search-container {
+            display: flex;
+            width: 50%;
+            max-width: 500px;
+            background: var(--glass-bg);
+            border-radius: 30px;
+            padding: 5px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .search-container input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .search-container button {
+            background: var(--primary);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .search-container button:hover {
+            transform: scale(1.1);
+        }
+
+        /* Grid Layout for Songs */
+        main {
+            padding: 30px 5%;
+        }
+
+        .section-title {
+            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        /* Song Card */
+        .card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .card img {
+            width: 100%;
+            border-radius: 10px;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .card .title {
+            font-size: 16px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card .artist {
+            font-size: 13px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        .play-overlay {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            height: calc(100% - 90px);
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card:hover .play-overlay {
+            opacity: 1;
+        }
+
+        .play-overlay i {
+            font-size: 40px;
+            color: var(--primary);
+        }
+
+        /* Loader */
+        .loader {
+            text-align: center;
+            padding: 50px;
+            display: none;
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        /* Bottom Player */
+        .player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid var(--glass-border);
+            padding: 15px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .player.active {
+            transform: translateY(0);
+        }
+
+        .now-playing {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 30%;
+        }
+
+        .now-playing img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 40%;
+        }
+
+        .buttons {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+
+        .buttons i {
+            font-size: 20px;
+            cursor: pointer;
+            color: #b3b3b3;
+            transition: color 0.2s;
+        }
+
+        .buttons i:hover {
+            color: white;
+        }
+
+        .buttons .play-btn {
+            font-size: 35px;
+            color: white;
+        }
+
+        .buttons .play-btn:hover {
+            transform: scale(1.1);
+            color: var(--primary);
+        }
+
+        .progress-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 5px;
+            background: #333;
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 5px;
+            width: 0%;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+            margin-top: 40px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            nav { flex-direction: column; gap: 15px; }
+            .search-container { width: 100%; }
+            .player { flex-direction: column; padding: 10px; gap: 15px; }
+            .now-playing { width: 100%; justify-content: center; text-align: center; }
+            .controls { width: 100%; }
+            .progress-container { display: none; /* Hide progress bar on very small screens for cleaner UI */ }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">
+            Krishan Music <span class="version-tag">API v1.0.0</span>
+        </div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Koi bhi gaana search karein..." onkeypress="handleKeyPress(event)">
+            <button onclick="searchMusic()"><i class="fas fa-search"></i></button>
+        </div>
+    </nav>
+
+    <main>
+        <div id="loader" class="loader"><i class="fas fa-spinner fa-spin"></i> Bawaal search ho raha hai...</div>
+        <h2 class="section-title" id="resultsTitle">Trending Now</h2>
+        <div class="grid" id="resultsGrid">
+            </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Made with ❤️ by <strong>Krishan</strong> | Powered by Custom API</p>
+    </footer>
+
+    <audio id="audioPlayer"></audio>
+
+    <div class="player" id="playerUI">
+        <div class="now-playing">
+            <img id="playerThumb" src="" alt="Thumbnail">
+            <div>
+                <div class="title" id="playerTitle" style="font-weight: 600; font-size: 15px;">Loading...</div>
+                <div class="artist" id="playerStatus" style="font-size: 12px; color: var(--primary);">Fetching stream...</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="buttons">
+                <i class="fas fa-step-backward" onclick="alert('Pichla gaana abhi implement nahi kiya!')"></i>
+                <i class="fas fa-play-circle play-btn" id="playPauseBtn" onclick="togglePlay()"></i>
+                <i class="fas fa-step-forward" onclick="alert('Agla gaana abhi implement nahi kiya!')"></i>
+            </div>
+            <div class="progress-container">
+                <span id="currentTime">0:00</span>
+                <div class="progress-bar" id="progressBar" onclick="seek(event)">
+                    <div class="progress" id="progressFill"></div>
+                </div>
+                <span id="duration">0:00</span>
+            </div>
+        </div>
+        
+        <div style="width: 30%;"></div> </div>
+
+    <script>
+        // AAPKA RENDER API URL (Isko change mat karna jab tak naya na banaye)
+        const BASE_URL = "https://ytmusicapi-krishan.onrender.com";
+
+        const searchInput = document.getElementById('searchInput');
+        const resultsGrid = document.getElementById('resultsGrid');
+        const loader = document.getElementById('loader');
+        const resultsTitle = document.getElementById('resultsTitle');
+        
+        // Player Elements
+        const audio = document.getElementById('audioPlayer');
+        const playerUI = document.getElementById('playerUI');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const progressFill = document.getElementById('progressFill');
+
+        // Enter dabane par search ho
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') searchMusic();
+        }
+
+        // Search Function
+        async function searchMusic() {
+            const query = searchInput.value.trim();
+            if (!query) return;
+
+            resultsGrid.innerHTML = '';
+            loader.style.display = 'block';
+            resultsTitle.innerText = `Results for "${query}"`;
+
+            try {
+                // API Call - Filter 'songs' lagaya hai taaki sirf gaane aayein
+                const response = await fetch(`${BASE_URL}/search?query=${encodeURIComponent(query)}&filter=songs`);
+                const data = await response.json();
+                
+                loader.style.display = 'none';
+
+                if (data.status === 'success' && data.data.length > 0) {
+                    data.data.forEach(song => {
+                        // Best quality thumbnail nikalna
+                        const thumbUrl = song.thumbnails[song.thumbnails.length - 1].url;
+                        const artistName = song.artists && song.artists.length > 0 ? song.artists[0].name : "Unknown Artist";
+
+                        // Card UI banana
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.onclick = () => playSong(song.videoId, song.title, thumbUrl);
+                        card.innerHTML = `
+                            <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
+                            <img src="${thumbUrl}" alt="Cover">
+                            <div class="title">${song.title}</div>
+                            <div class="artist">${artistName}</div>
+                        `;
+                        resultsGrid.appendChild(card);
+                    });
+                } else {
+                    resultsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Kuch nahi mila bhai, spelling check kar!</p>';
+                }
+            } catch (error) {
+                loader.style.display = 'none';
+                resultsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: red;">API se connect nahi ho pa raha. Server jag raha hai?</p>';
+                console.error(error);
+            }
+        }
+
+        // Play Song Function
+        async function playSong(videoId, title, thumb) {
+            // Player UI on karo
+            playerUI.classList.add('active');
+            document.getElementById('playerTitle').innerText = title;
+            document.getElementById('playerThumb').src = thumb;
+            document.getElementById('playerStatus').innerText = "Fetching stream URL...";
+            document.getElementById('playerStatus').style.color = "orange";
+            playPauseBtn.className = 'fas fa-spinner fa-spin play-btn'; // Loading icon
+
+            try {
+                // Stream URL nikalna backend se
+                const response = await fetch(`${BASE_URL}/stream/${videoId}`);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    audio.src = data.stream_url;
+                    audio.play();
+                    
+                    document.getElementById('playerStatus').innerText = "Now Playing";
+                    document.getElementById('playerStatus').style.color = "var(--primary)";
+                    playPauseBtn.className = 'fas fa-pause-circle play-btn';
+                } else {
+                    throw new Error("Stream fail");
+                }
+            } catch (error) {
+                document.getElementById('playerStatus').innerText = "Error playing song!";
+                document.getElementById('playerStatus').style.color = "red";
+                playPauseBtn.className = 'fas fa-play-circle play-btn';
+                console.error(error);
+            }
+        }
+
+        // Play/Pause Toggle
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                playPauseBtn.className = 'fas fa-pause-circle play-btn';
+            } else {
+                audio.pause();
+                playPauseBtn.className = 'fas fa-play-circle play-btn';
+            }
+        }
+
+        // Update Progress Bar
+        audio.addEventListener('timeupdate', () => {
+            if (audio.duration) {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                progressFill.style.width = `${percent}%`;
+                
+                // Update text timers
+                document.getElementById('currentTime').innerText = formatTime(audio.currentTime);
+                document.getElementById('duration').innerText = formatTime(audio.duration);
+            }
+        });
+
+        // Click to Seek
+        function seek(event) {
+            const bar = document.getElementById('progressBar');
+            const clickX = event.offsetX;
+            const width = bar.clientWidth;
+            const clickRatio = clickX / width;
+            audio.currentTime = clickRatio * audio.duration;
+        }
+
+        // Time formatter (seconds to M:SS)
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        }
+
+        // Gaana khatam hone par play button reset
+        audio.addEventListener('ended', () => {
+            playPauseBtn.className = 'fas fa-play-circle play-btn';
+            progressFill.style.width = '0%';
+        });
+
+        // Default load pe Arijit Singh ke gaane dikhate hain thoda bhara bhara lagne ke liye
+        window.onload = () => {
+            searchInput.value = "Arijit Singh Top hits";
+            searchMusic();
+            searchInput.value = ""; // Search bar khali kar do taaki user apna likh sake
+        }
+    </script>
+</body>
+</html>
