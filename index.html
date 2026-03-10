@@ -3,313 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Krishan Music | Infinity Edition</title>
+    <title>Krishan Music | Fixed Infinity</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1ed760; --primary-glow: rgba(30, 215, 96, 0.4);
-            --bg-deep: #050505; --bg-surface: #121212;
-            --text-main: #ffffff; --text-dim: #a7a7a7;
-            --anim-speed: 0.6s;
+            --primary: #1ed760; --bg-main: #050505; --bg-card: #121212;
+            --text-main: #ffffff; --text-dim: #b3b3b3;
         }
-
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg-deep); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        body { background: var(--bg-main); color: white; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-        /* Animations */
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes rotateGlow { from { filter: hue-rotate(0deg); } to { filter: hue-rotate(360deg); } }
-
+        /* Modern Layout */
         .app-shell { display: flex; flex: 1; overflow: hidden; }
-
-        /* Modern Sidebar */
-        .sidebar { 
-            width: 320px; background: #000; padding: 25px; 
-            display: flex; flex-direction: column; gap: 20px; border-right: 1px solid rgba(255,255,255,0.05);
-        }
-        .logo-box { font-size: 26px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-        
+        .sidebar { width: 320px; background: #000; padding: 20px; border-right: 1px solid #222; display: flex; flex-direction: column; gap: 20px; }
+        .logo { font-size: 24px; font-weight: 800; color: var(--primary); }
         .search-box { position: relative; }
-        .search-box input { 
-            width: 100%; padding: 14px 20px 14px 45px; border-radius: 50px; border: none;
-            background: var(--bg-surface); color: white; outline: none; transition: 0.3s;
-        }
-        .search-box input:focus { background: #222; box-shadow: 0 0 15px var(--primary-glow); }
-        .search-box i { position: absolute; left: 18px; top: 16px; color: var(--text-dim); }
+        .search-box input { width: 100%; padding: 12px 15px 12px 40px; border-radius: 25px; border:none; background: #181818; color: white; outline: none; }
+        .search-box i { position: absolute; left: 15px; top: 13px; color: var(--text-dim); }
+        .results-list { flex: 1; overflow-y: auto; }
 
-        .list-results { flex: 1; overflow-y: auto; padding-right: 5px; }
-        .song-item { 
-            display: flex; align-items: center; gap: 15px; padding: 12px; border-radius: 12px; 
-            cursor: pointer; transition: 0.3s; margin-bottom: 5px; animation: slideUp 0.4s ease backwards;
-        }
-        .song-item:hover { background: rgba(255,255,255,0.08); transform: scale(1.02); }
-        .song-item img { width: 48px; height: 48px; border-radius: 6px; object-fit: cover; }
-        .song-item .meta-txt { overflow: hidden; }
-        .song-item .t { font-size: 14px; font-weight: 700; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .song-item .a { font-size: 12px; color: var(--text-dim); }
+        .song-item { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-bottom: 5px; }
+        .song-item:hover { background: #282828; }
+        .song-item img { width: 45px; height: 45px; border-radius: 4px; object-fit: cover; }
+        .song-item .t { font-size: 14px; font-weight: 600; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Main Player Stage */
-        .main-stage { 
-            flex: 1; position: relative; display: flex; flex-direction: column; 
-            align-items: center; overflow-y: auto; padding: 40px;
-            background: radial-gradient(circle at 50% 0%, #1ed76015, transparent);
-        }
+        .main-view { flex: 1; padding: 40px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; background: radial-gradient(circle at top, #1ed76011, #050505); }
+        .big-art { width: 100%; max-width: 380px; aspect-ratio: 1/1; border-radius: 15px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); margin-bottom: 25px; object-fit: cover; }
+        .lyrics-box { width: 100%; max-width: 600px; margin-top: 30px; padding: 30px; background: rgba(255,255,255,0.03); border-radius: 20px; text-align: center; }
 
-        .hero-view { width: 100%; max-width: 450px; text-align: center; z-index: 2; animation: slideUp 0.8s ease; }
-        .max-thumb { 
-            width: 100%; aspect-ratio: 1/1; border-radius: 20px; object-fit: cover; 
-            box-shadow: 0 40px 80px rgba(0,0,0,0.8); margin-bottom: 30px;
-            transition: 0.5s transform cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .max-thumb:hover { transform: scale(1.03); }
-        
-        .main-meta h1 { font-size: 34px; font-weight: 800; margin-bottom: 10px; line-height: 1.1; letter-spacing: -1px; }
-        .main-meta p { font-size: 18px; color: var(--primary); font-weight: 600; opacity: 0.9; }
+        /* Bottom Player */
+        .player-bar { height: 100px; background: #000; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 25px; justify-content: space-between; position: relative; z-index: 100; }
+        .track-info { width: 30%; display: flex; align-items: center; gap: 15px; }
+        .track-info img { width: 56px; height: 56px; border-radius: 6px; }
+        .controls { width: 40%; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .play-btn { font-size: 40px; color: white; cursor: pointer; }
+        .progress-container { width: 100%; display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--text-dim); }
+        .bar { flex: 1; height: 4px; background: #333; border-radius: 2px; cursor: pointer; position: relative; }
+        .fill { height: 100%; width: 0%; background: var(--primary); border-radius: 2px; }
 
-        /* Bawaal Lyrics Section */
-        .lyrics-section { 
-            width: 100%; max-width: 700px; margin-top: 60px; padding: 40px;
-            background: rgba(255,255,255,0.02); border-radius: 30px; border: 1px solid rgba(255,255,255,0.05);
-            backdrop-filter: blur(20px); text-align: center;
-        }
-        .lyrics-section h3 { font-size: 12px; letter-spacing: 4px; color: var(--text-dim); margin-bottom: 25px; text-transform: uppercase; }
-        .lyrics-body { font-size: 24px; font-weight: 800; line-height: 1.6; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
-
-        /* Floating Bottom Controls */
-        .player-bar { 
-            height: 100px; background: rgba(5,5,5,0.95); backdrop-filter: blur(30px);
-            border-top: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center;
-            padding: 0 40px; justify-content: space-between; z-index: 1000;
-        }
-        .track-box { width: 30%; display: flex; align-items: center; gap: 15px; }
-        .track-box img { width: 56px; height: 56px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
-        
-        .control-core { width: 40%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .btn-row { display: flex; align-items: center; gap: 30px; }
-        .btn-row i { font-size: 20px; color: var(--text-dim); cursor: pointer; transition: 0.3s; }
-        .btn-row i:hover { color: #fff; transform: scale(1.1); }
-        .btn-row .play-pause-icon { font-size: 44px; color: #fff; }
-        .btn-row .active { color: var(--primary); }
-
-        .seek-container { width: 100%; display: flex; align-items: center; gap: 12px; font-size: 11px; font-weight: 700; color: var(--text-dim); }
-        .seek-bg { flex: 1; height: 4px; background: #333; border-radius: 10px; cursor: pointer; position: relative; }
-        .seek-fill { height: 100%; width: 0%; background: var(--primary); border-radius: 10px; transition: 0.1s linear; }
-
-        .vol-box { width: 30%; display: flex; justify-content: flex-end; align-items: center; gap: 12px; color: var(--text-dim); }
-        .vol-bar { width: 100px; height: 4px; background: #333; border-radius: 10px; cursor: pointer; }
-        .vol-fill { width: 100%; height: 100%; background: #fff; border-radius: 10px; }
-
-        @media (max-width: 900px) {
-            .sidebar { display: none; }
-            .player-bar { padding: 0 20px; }
-            .track-box { width: 70%; } .vol-box { display: none; }
-            .seek-container { position: absolute; top: -2px; left: 0; width: 100%; }
-        }
+        @media (max-width: 800px) { .sidebar { display: none; } .track-info { width: 70%; } .controls { width: 30%; } .progress-container { position: absolute; top: 0; left: 0; width: 100%; } }
     </style>
 </head>
 <body>
 
     <div class="app-shell">
         <aside class="sidebar">
-            <div class="logo-box"><i class="fas fa-play-circle"></i> KRISHAN<span>MUSIC</span></div>
+            <div class="logo"><i class="fas fa-bolt"></i> KRISHAN MUSIC</div>
             <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" id="queryInput" placeholder="Bawaal gaane dhundho..." onkeypress="if(event.key=='Enter') runSearch()">
+                <input type="text" id="searchInput" placeholder="Search for a banger..." onkeypress="if(event.key=='Enter') search()">
             </div>
-            <div class="list-results" id="searchList"></div>
+            <div class="results-list" id="results"></div>
         </aside>
 
-        <main class="main-stage">
-            <div class="hero-view">
-                <img id="mainArt" src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1000&auto=format&fit=crop" class="max-thumb">
-                <div class="main-meta">
-                    <h1 id="mainT">Vibe Check?</h1>
-                    <p id="mainA">Search and select a track</p>
-                </div>
-            </div>
-
-            <div class="lyrics-section">
-                <h3><i class="fas fa-music"></i> Lyrics Panel</h3>
-                <div class="lyrics-body" id="lyricsOutput">Select a song to feel the words...</div>
+        <main class="main-view">
+            <img id="mainArt" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=500" class="big-art">
+            <h1 id="mainTitle">Vibe Check?</h1>
+            <p id="mainArtist" style="color:var(--primary); font-weight:600; margin-top:5px;">Search something bawaal</p>
+            
+            <div class="lyrics-box">
+                <h4 style="color:var(--text-dim); margin-bottom:15px; letter-spacing:2px;">LYRICS PANEL</h4>
+                <div id="lyricsContent" style="font-size:20px; font-weight:700; line-height:1.6;">Play a song to see magic...</div>
             </div>
         </main>
     </div>
 
-    <div id="ytIframe" style="display:none;"></div>
+    <div id="ytContainer" style="display:none;"></div>
 
     <footer class="player-bar">
-        <div class="track-box">
-            <img id="miniArt" src="https://via.placeholder.com/56">
-            <div class="mini-meta">
-                <div id="miniT" style="font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Song Title</div>
-                <div id="miniA" style="font-size:12px; color:var(--text-dim);">Artist Name</div>
+        <div class="track-info">
+            <img id="miniThumb" src="https://via.placeholder.com/56">
+            <div style="overflow:hidden">
+                <div id="miniTitle" style="font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Song Title</div>
+                <div id="miniArtist" style="font-size:12px; color:var(--text-dim);">Artist</div>
             </div>
         </div>
 
-        <div class="control-core">
-            <div class="btn-row">
-                <i class="fas fa-random" id="shuffle" title="Shuffle"></i>
-                <i class="fas fa-step-backward" onclick="skipToPrev()" title="Previous"></i>
-                <i class="fas fa-play-circle play-pause-icon" id="mainPlay" onclick="togglePlayback()" title="Play/Pause"></i>
-                <i class="fas fa-step-forward" onclick="skipToNext()" title="Next"></i>
-                <i class="fas fa-redo" id="loop" onclick="toggleLoop()" title="Loop"></i>
+        <div class="controls">
+            <div class="btns" style="display:flex; align-items:center; gap:25px;">
+                <i class="fas fa-step-backward" style="color:#777; cursor:pointer;" onclick="playPrev()"></i>
+                <i class="fas fa-play-circle play-btn" id="playBtn" onclick="togglePlay()"></i>
+                <i class="fas fa-step-forward" style="color:#777; cursor:pointer;" onclick="playNext()"></i>
             </div>
-            <div class="seek-container">
-                <span id="timeNow">0:00</span>
-                <div class="seek-bg" onclick="scrub(event)">
-                    <div class="seek-fill" id="seekFill"></div>
-                </div>
-                <span id="timeTotal">0:00</span>
+            <div class="progress-container">
+                <span id="currTime">0:00</span>
+                <div class="bar" onclick="seek(event)"><div class="fill" id="fill"></div></div>
+                <span id="durTime">0:00</span>
             </div>
         </div>
-
-        <div class="vol-box">
-            <i class="fas fa-volume-up"></i>
-            <div class="vol-bar" onclick="changeVolume(event)">
-                <div class="vol-fill" id="volFill"></div>
-            </div>
-        </div>
+        <div style="width:30%"></div>
     </footer>
 
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        // API BASE URL (Isse apna hi rakhna)
-        const BASE_API = "https://ytmusicapi-krishan.onrender.com"; 
-        
-        let player, isLoaded = false, queue = [], qIndex = 0, loopMode = false;
+        // 1. APNA RENDER URL YAHAN DALEIN
+        const API_URL = "https://ytmusicapi-krishan.onrender.com"; 
 
-        // Force YouTube IFrame API to load properly
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        let player;
+        let isPlayerReady = false;
+        let queue = [];
+        let currentIndex = 0;
 
         function onYouTubeIframeAPIReady() {
-            player = new YT.Player('ytIframe', {
+            player = new YT.Player('ytContainer', {
                 events: {
-                    'onReady': () => { isLoaded = true; console.log("Player Ready"); },
-                    'onStateChange': stateManager,
-                    'onError': (e) => { console.error("YT Error:", e); skipToNext(); }
+                    'onReady': () => { isPlayerReady = true; console.log("YT Ready"); },
+                    'onStateChange': onStateChange,
+                    'onError': () => playNext() // Agar gaana block ho toh agla bajao
                 }
             });
         }
 
-        async function runSearch() {
-            const val = document.getElementById('queryInput').value;
-            if(!val) return;
-            const res = await fetch(`${BASE_API}/search?query=${encodeURIComponent(val)}`);
-            const data = await res.json();
-            const list = document.getElementById('searchList');
-            list.innerHTML = '';
-            data.data.forEach((s, idx) => {
-                // High Quality Thumbnail Hack
-                const hqThumb = s.thumbnails[s.thumbnails.length-1].url.replace('w60-h60', 'w1080-h1080');
-                list.innerHTML += `
-                <div class="song-item" onclick="startVibe('${s.videoId}', '${s.title.replace(/'/g,"")}', '${hqThumb}', '${s.artists[0].name}')">
-                    <img src="${hqThumb}">
-                    <div class="meta-txt"><span class="t">${s.title}</span><span class="a">${s.artists[0].name}</span></div>
-                </div>`;
-            });
+        async function search() {
+            const q = document.getElementById('searchInput').value;
+            if(!q) return;
+            try {
+                const res = await fetch(`${API_URL}/search?query=${encodeURIComponent(q)}`);
+                const data = await res.json();
+                const box = document.getElementById('results');
+                box.innerHTML = '';
+                queue = data.data; // Store in queue
+
+                data.data.forEach((s, index) => {
+                    const thumb = s.thumbnails[s.thumbnails.length-1].url.replace('w60-h60', 'w500-h500');
+                    // Special character fix: use index instead of passing title strings
+                    box.innerHTML += `
+                        <div class="song-item" onclick="preparePlay(${index})">
+                            <img src="${thumb}">
+                            <div class="meta"><span class="t">${s.title}</span><span style="font-size:12px;color:#777">${s.artists[0].name}</span></div>
+                        </div>`;
+                });
+            } catch(e) { console.error("Search failed", e); }
         }
 
-        async function startVibe(id, title, thumb, artist) {
-            if(!isLoaded) return;
-            
+        function preparePlay(index) {
+            currentIndex = index;
+            const song = queue[currentIndex];
+            const thumb = song.thumbnails[song.thumbnails.length-1].url.replace('w60-h60', 'w500-h500');
+            playSong(song.videoId, song.title, thumb, song.artists[0].name);
+        }
+
+        function playSong(id, title, thumb, artist) {
+            if(!isPlayerReady) { console.log("Player not ready yet"); return; }
+
             // UI Updates
-            document.getElementById('mainT').innerText = title;
-            document.getElementById('miniT').innerText = title;
-            document.getElementById('mainA').innerText = artist;
-            document.getElementById('miniA').innerText = artist;
+            document.getElementById('mainTitle').innerText = title;
+            document.getElementById('miniTitle').innerText = title;
+            document.getElementById('mainArtist').innerText = artist;
+            document.getElementById('miniArtist').innerText = artist;
             document.getElementById('mainArt').src = thumb;
-            document.getElementById('miniArt').src = thumb;
+            document.getElementById('miniThumb').src = thumb;
 
-            // Load Video
+            // YouTube Play
             player.loadVideoById(id);
-            document.getElementById('mainPlay').className = "fas fa-pause-circle play-pause-icon";
+            document.getElementById('playBtn').className = "fas fa-pause-circle play-btn";
 
-            // Fetch Extra Data
+            // Fetch Data
             fetchLyrics(id);
-            syncQueue(id);
+            fetchSuggestions(id);
         }
 
         async function fetchLyrics(id) {
-            const out = document.getElementById('lyricsOutput');
-            out.innerHTML = '<span style="color:var(--primary)">Vibing to the lyrics...</span>';
-            try {
-                const res = await fetch(`${BASE_API}/lyrics/${id}`);
-                const data = await res.json();
-                out.innerText = data.data || "Lyrics not found, just feel the beat!";
-            } catch(e) { out.innerText = "Error loading lyrics."; }
-        }
-
-        async function syncQueue(id) {
-            const res = await fetch(`${BASE_API}/suggestions/${id}`);
+            const box = document.getElementById('lyricsContent');
+            box.innerText = "Finding words...";
+            const res = await fetch(`${API_URL}/lyrics/${id}`);
             const data = await res.json();
-            queue = data.data;
-            qIndex = 0;
+            box.innerText = data.data || "Lyrics not found, just feel the vibe!";
         }
 
-        function skipToNext() {
-            if(queue.length > 0 && qIndex < queue.length - 1) {
-                qIndex++;
-                const s = queue[qIndex];
-                const t = s.thumbnail[s.thumbnail.length-1].url.replace('w60-h60', 'w1080-h1080');
-                startVibe(s.videoId, s.title, t, s.artists[0].name);
+        async function fetchSuggestions(id) {
+            // Hum queue ko update kar sakte hain similar songs se
+            const res = await fetch(`${API_URL}/suggestions/${id}`);
+            const data = await res.json();
+            if(data.status === 'success') {
+                // Suggestions ko queue ke aage jod do
+                queue = [...queue, ...data.data];
             }
         }
 
-        function skipToPrev() {
-            if(qIndex > 0) {
-                qIndex--;
-                const s = queue[qIndex];
-                const t = s.thumbnail[s.thumbnail.length-1].url.replace('w60-h60', 'w1080-h1080');
-                startVibe(s.videoId, s.title, t, s.artists[0].name);
-            }
+        function playNext() { if(currentIndex < queue.length - 1) preparePlay(currentIndex + 1); }
+        function playPrev() { if(currentIndex > 0) preparePlay(currentIndex - 1); }
+
+        function onStateChange(e) {
+            if(e.data == YT.PlayerState.PLAYING) setInterval(updateProgress, 500);
+            if(e.data == YT.PlayerState.ENDED) playNext();
         }
 
-        function stateManager(e) {
-            if(e.data == YT.PlayerState.PLAYING) setInterval(updateTimeline, 500);
-            if(e.data == YT.PlayerState.ENDED) {
-                if(loopMode) player.playVideo();
-                else skipToNext();
-            }
-        }
-
-        function updateTimeline() {
+        function updateProgress() {
             if(!player || !player.getCurrentTime) return;
-            const c = player.getCurrentTime(), d = player.getDuration();
-            if(d > 0) {
-                document.getElementById('seekFill').style.width = (c/d)*100 + "%";
-                document.getElementById('timeNow').innerText = format(c);
-                document.getElementById('timeTotal').innerText = format(d);
+            const cur = player.getCurrentTime();
+            const dur = player.getDuration();
+            if(dur > 0) {
+                const per = (cur / dur) * 100;
+                document.getElementById('fill').style.width = per + "%";
+                document.getElementById('currTime').innerText = format(cur);
+                document.getElementById('durTime').innerText = format(dur);
             }
+        }
+
+        function togglePlay() {
+            const s = player.getPlayerState();
+            if(s == 1) { player.pauseVideo(); document.getElementById('playBtn').className = "fas fa-play-circle play-btn"; }
+            else { player.playVideo(); document.getElementById('playBtn').className = "fas fa-pause-circle play-btn"; }
+        }
+
+        function seek(e) {
+            const bar = e.currentTarget;
+            const per = e.offsetX / bar.clientWidth;
+            player.seekTo(per * player.getDuration());
         }
 
         function format(s) {
-            const m = Math.floor(s/60), r = Math.floor(s%60);
+            const m = Math.floor(s/60);
+            const r = Math.floor(s%60);
             return `${m}:${r < 10 ? '0' : ''}${r}`;
-        }
-
-        function togglePlayback() {
-            const s = player.getPlayerState();
-            if(s == 1) { player.pauseVideo(); document.getElementById('mainPlay').className = "fas fa-play-circle play-pause-icon"; }
-            else { player.playVideo(); document.getElementById('mainPlay').className = "fas fa-pause-circle play-pause-icon"; }
-        }
-
-        function scrub(e) {
-            const pct = e.offsetX / e.currentTarget.clientWidth;
-            player.seekTo(pct * player.getDuration());
-        }
-
-        function toggleLoop() {
-            loopMode = !loopMode;
-            document.getElementById('loop').classList.toggle('active');
-        }
-
-        function changeVolume(e) {
-            const vol = (e.offsetX / e.currentTarget.clientWidth) * 100;
-            player.setVolume(vol);
-            document.getElementById('volFill').style.width = vol + "%";
         }
     </script>
 </body>
