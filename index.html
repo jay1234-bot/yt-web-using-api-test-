@@ -3,275 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Krishan Music Pro | Fixed V5</title>
+    <title>Krishan Music | Legendary Edition</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1ed760; --bg-black: #000000; --bg-dark: #121212;
-            --bg-light: #181818; --text-gray: #b3b3b3; --accent: #282828;
+            --primary: #1ed760; --primary-glow: rgba(30, 215, 96, 0.3);
+            --bg-deep: #050505; --bg-surface: #121212; --bg-elevated: #181818;
+            --text-main: #ffffff; --text-dim: #a7a7a7; --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg-black); color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        body { background: var(--bg-deep); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-        /* Layout */
-        .app-container { display: flex; flex: 1; overflow: hidden; }
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* Sidebar */
-        .sidebar { width: 300px; background: var(--bg-black); padding: 20px; display: flex; flex-direction: column; gap: 15px; border-right: 1px solid #222; }
-        .logo { font-size: 22px; font-weight: 800; color: var(--primary); letter-spacing: -1px; }
-        .search-box { position: relative; }
-        .search-box input { width: 100%; padding: 12px 15px 12px 40px; border-radius: 25px; border:none; background: var(--bg-light); color: white; outline: none; font-size: 14px; }
-        .search-box i { position: absolute; left: 15px; top: 13px; color: var(--text-gray); }
-        .search-results { flex: 1; overflow-y: auto; }
+        /* App Layout */
+        .app-shell { display: flex; flex: 1; overflow: hidden; position: relative; }
 
-        /* Main Area */
-        .main-content { flex: 1; background: linear-gradient(to bottom, #1db95422, var(--bg-dark)); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; scroll-behavior: smooth; }
-        .player-hero { width: 100%; max-width: 350px; text-align: center; margin-top: 20px; }
-        .player-hero img { width: 100%; aspect-ratio: 1/1; border-radius: 15px; box-shadow: 0 15px 50px rgba(0,0,0,0.8); object-fit: cover; }
-        .song-info { margin-top: 20px; }
-        .song-info h1 { font-size: 28px; font-weight: 800; margin-bottom: 5px; }
-        .song-info p { color: var(--primary); font-weight: 600; }
-
-        /* Lyrics Section */
-        .lyrics-box { width: 100%; max-width: 600px; margin-top: 40px; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 15px; text-align: left; }
-        .lyrics-text { font-size: 18px; color: var(--text-gray); line-height: 1.8; white-space: pre-wrap; font-weight: 600; }
-
-        /* Queue Sidebar */
-        .queue-area { width: 300px; background: var(--bg-black); padding: 20px; border-left: 1px solid #222; overflow-y: auto; }
-        .queue-area h3 { font-size: 16px; margin-bottom: 15px; color: var(--text-gray); text-transform: uppercase; letter-spacing: 1px; }
-
-        /* Shared Item Style */
-        .song-item { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.2s; margin-bottom: 5px; }
-        .song-item:hover { background: var(--accent); }
-        .song-item img { width: 45px; height: 45px; border-radius: 4px; }
-        .song-item .details { overflow: hidden; }
-        .song-item .title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .song-item .artist { font-size: 12px; color: var(--text-gray); }
-
-        /* Bottom Bar */
-        .bottom-bar { height: 90px; background: #080808; border-top: 1px solid #222; display: flex; align-items: center; padding: 0 20px; justify-content: space-between; z-index: 100; }
-        .track-display { width: 30%; display: flex; align-items: center; gap: 12px; }
-        .track-display img { width: 50px; height: 50px; border-radius: 4px; }
+        /* Glass Sidebar */
+        .sidebar { 
+            width: 320px; background: var(--bg-deep); padding: 25px; 
+            display: flex; flex-direction: column; gap: 25px; border-right: 1px solid rgba(255,255,255,0.05);
+            animation: fadeIn 0.8s ease;
+        }
+        .logo-box { display: flex; align-items: center; gap: 12px; font-size: 24px; font-weight: 800; color: var(--primary); text-shadow: 0 0 15px var(--primary-glow); }
         
-        .main-controls { width: 40%; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .play-btn { font-size: 35px; cursor: pointer; transition: 0.2s; color: white; }
-        .play-btn:hover { transform: scale(1.1); color: var(--primary); }
+        .search-wrapper { position: relative; }
+        .search-wrapper input { 
+            width: 100%; padding: 14px 20px 14px 45px; border-radius: 12px; border: 1px solid transparent;
+            background: var(--bg-surface); color: white; outline: none; transition: var(--transition);
+        }
+        .search-wrapper input:focus { border-color: var(--primary); background: var(--bg-elevated); box-shadow: 0 0 20px rgba(30,215,96,0.1); }
+        .search-wrapper i { position: absolute; left: 18px; top: 16px; color: var(--text-dim); }
+
+        .list-container { flex: 1; overflow-y: auto; margin-top: 10px; padding-right: 5px; }
+        .song-card { 
+            display: flex; align-items: center; gap: 15px; padding: 12px; border-radius: 12px; 
+            cursor: pointer; transition: var(--transition); margin-bottom: 8px;
+            animation: fadeIn 0.5s ease backwards;
+        }
+        .song-card:hover { background: rgba(255,255,255,0.05); transform: translateX(5px); }
+        .song-card img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; box-shadow: 0 5px 10px rgba(0,0,0,0.3); }
+        .song-card.active { background: rgba(30, 215, 96, 0.1); border-left: 4px solid var(--primary); }
+        .info-small .t { font-size: 14px; font-weight: 600; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+        .info-small .a { font-size: 12px; color: var(--text-dim); }
+
+        /* Main Stage */
+        .main-stage { 
+            flex: 1; position: relative; background: radial-gradient(circle at top, #1ed76011, var(--bg-deep)); 
+            display: flex; flex-direction: column; align-items: center; overflow-y: auto; padding: 40px;
+        }
+
+        /* Extended Player View */
+        .visual-box { 
+            width: 100%; max-width: 420px; text-align: center; position: relative;
+            z-index: 2; transition: var(--transition);
+        }
+        .visual-box.zoom { transform: scale(1.05); }
+        .main-art { 
+            width: 100%; aspect-ratio: 1/1; border-radius: 20px; object-fit: cover; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7), 0 0 40px rgba(30, 215, 96, 0.1);
+            margin-bottom: 30px;
+        }
+        .main-meta h1 { font-size: 38px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+        .main-meta p { font-size: 20px; color: var(--primary); font-weight: 600; }
+
+        /* Lyrics Glass Panel */
+        .lyrics-panel { 
+            width: 100%; max-width: 700px; margin-top: 50px; padding: 40px;
+            background: rgba(255,255,255,0.02); border-radius: 30px; border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px); text-align: left;
+        }
+        .lyrics-panel h3 { margin-bottom: 25px; color: var(--text-dim); letter-spacing: 2px; font-size: 14px; }
+        .lyrics-content { font-size: 22px; font-weight: 700; line-height: 1.8; color: #eee; }
+
+        /* Bottom Control Bar */
+        .control-bar { 
+            height: 110px; background: rgba(5,5,5,0.95); backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center;
+            padding: 0 30px; justify-content: space-between; z-index: 1000;
+        }
+        .active-track { width: 30%; display: flex; align-items: center; gap: 18px; }
+        .active-track img { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; }
         
-        .progress-wrapper { width: 100%; display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--text-gray); }
-        .bar-bg { flex: 1; height: 4px; background: #333; border-radius: 2px; cursor: pointer; position: relative; }
-        .bar-fill { height: 100%; width: 0%; background: var(--primary); border-radius: 2px; }
+        .core-controls { width: 40%; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .btn-group { display: flex; align-items: center; gap: 30px; }
+        .btn-group i { font-size: 20px; color: var(--text-dim); cursor: pointer; transition: 0.3s; }
+        .btn-group i:hover { color: white; transform: scale(1.1); }
+        .btn-group .play-trigger { font-size: 48px; color: white; }
+        .btn-group .active-mode { color: var(--primary); text-shadow: 0 0 10px var(--primary); }
 
-        .extra-controls { width: 30%; display: flex; justify-content: flex-end; gap: 15px; color: var(--text-gray); }
+        .timeline { width: 100%; display: flex; align-items: center; gap: 15px; font-size: 12px; font-weight: 600; color: var(--text-dim); }
+        .progress-rail { flex: 1; height: 6px; background: #333; border-radius: 3px; cursor: pointer; position: relative; overflow: hidden; }
+        .progress-knob { height: 100%; width: 0%; background: var(--primary); transition: width 0.1s linear; }
 
-        /* Mobile Fix */
-        @media (max-width: 900px) {
-            .sidebar, .queue-area { display: none; }
-            .track-display { width: 70%; }
-            .extra-controls { display: none; }
-            .main-controls { width: 30%; }
-            .progress-wrapper { position: absolute; top: -2px; left: 0; width: 100%; }
-            .progress-wrapper span { display: none; }
+        .utility { width: 30%; display: flex; justify-content: flex-end; align-items: center; gap: 20px; color: var(--text-dim); }
+        
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+        @media (max-width: 1000px) {
+            .sidebar { display: none; }
+            .active-track { width: 60%; } .core-controls { width: 40%; }
+            .utility { display: none; } .timeline { position: absolute; top: 0; left: 0; width: 100%; }
         }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <div class="sidebar">
-            <div class="logo">KRISHAN PRO <span>v5.1</span></div>
-            <div class="search-box">
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="logo-box"><i class="fas fa-bolt"></i> KRISHAN<span>PRO</span></div>
+            <div class="search-wrapper">
                 <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" placeholder="Search for songs..." onkeypress="if(event.key=='Enter') performSearch()">
+                <input type="text" id="mainSearch" placeholder="Search for magic..." onkeypress="if(event.key=='Enter') executeSearch()">
             </div>
-            <div class="search-results" id="searchResults"></div>
-        </div>
+            <div class="list-container" id="searchOutput"></div>
+        </aside>
 
-        <div class="main-content" id="mainScroll">
-            <div class="player-hero">
-                <img id="displayThumb" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=500&auto=format&fit=crop" alt="">
-                <div class="song-info">
-                    <h1 id="displayTitle">Ready to Play</h1>
-                    <p id="displayArtist">Search & select a track</p>
+        <main class="main-stage">
+            <div class="visual-box" id="extendedView">
+                <img id="bigArt" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=1000&auto=format&fit=crop" class="main-art">
+                <div class="main-meta">
+                    <h1 id="bigTitle">Ready for Bawaal?</h1>
+                    <p id="bigArtist">Search & Play</p>
                 </div>
             </div>
 
-            <div class="lyrics-box">
-                <h3 style="color: var(--primary); margin-bottom: 15px;"><i class="fas fa-quote-left"></i> LYRICS</h3>
-                <div class="lyrics-text" id="lyricsContent">Play a song to see lyrics here...</div>
+            <div class="lyrics-panel">
+                <h3><i class="fas fa-align-left"></i> LYRICS</h3>
+                <div class="lyrics-content" id="lyricsBox">Play a song to reveal lyrics...</div>
             </div>
-        </div>
-
-        <div class="queue-area">
-            <h3>UP NEXT</h3>
-            <div id="queueList"></div>
-        </div>
+        </main>
     </div>
 
-    <div id="ytPlaceholder" style="display:none;"></div>
+    <div id="ytEngine" style="display:none;"></div>
 
-    <div class="bottom-bar">
-        <div class="track-display">
-            <img id="miniThumb" src="https://via.placeholder.com/50">
-            <div style="overflow:hidden;">
-                <div id="miniTitle" style="font-weight:600; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Song Title</div>
-                <div id="miniArtist" style="font-size:11px; color:var(--text-gray);">Artist Name</div>
+    <footer class="control-bar">
+        <div class="active-track">
+            <img id="miniArt" src="https://via.placeholder.com/64">
+            <div class="mini-info">
+                <div id="miniT" style="font-weight:700; font-size:15px;">Song Title</div>
+                <div id="miniA" style="font-size:13px; color:var(--text-dim);">Artist Name</div>
             </div>
         </div>
 
-        <div class="main-controls">
-            <i class="fas fa-play-circle play-btn" id="masterPlay" onclick="handleToggle()"></i>
-            <div class="progress-wrapper">
-                <span id="cTime">0:00</span>
-                <div class="bar-bg" onclick="handleSeek(event)">
-                    <div class="bar-fill" id="progLine"></div>
+        <div class="core-controls">
+            <div class="btn-group">
+                <i class="fas fa-random" id="shuffleBtn" onclick="toggleShuffle()"></i>
+                <i class="fas fa-step-backward" onclick="playPrev()"></i>
+                <i class="fas fa-play-circle play-trigger" id="masterPlay" onclick="handleToggle()"></i>
+                <i class="fas fa-step-forward" onclick="playNext()"></i>
+                <i class="fas fa-redo" id="repeatBtn" onclick="toggleRepeat()"></i>
+            </div>
+            <div class="timeline">
+                <span id="timeStart">0:00</span>
+                <div class="progress-rail" onclick="jumpTo(event)">
+                    <div class="progress-knob" id="timeLine"></div>
                 </div>
-                <span id="tTime">0:00</span>
+                <span id="timeEnd">0:00</span>
             </div>
         </div>
 
-        <div class="extra-controls">
+        <div class="utility">
+            <i class="fas fa-list-ul" style="cursor: pointer;"></i>
             <i class="fas fa-volume-up"></i>
-            <i class="fas fa-expand"></i>
+            <div class="progress-rail" style="width: 100px;">
+                <div class="progress-knob" style="width: 80%;"></div>
+            </div>
         </div>
-    </div>
+    </footer>
 
     <script src="https://www.youtube.com/iframe_api"></script>
-
     <script>
-        // 🛑 IMPORTANT: Apna Render URL yahan daalein
         const API_BASE = "https://ytmusicapi-krishan.onrender.com"; 
+        let player, isReady = false, currentQueue = [], currentIndex = 0;
+        let isRepeat = false, isShuffle = false;
 
-        let ytPlayer;
-        let isPlayerReady = false;
-
-        // IFrame API Ready
         function onYouTubeIframeAPIReady() {
-            ytPlayer = new YT.Player('ytPlaceholder', {
-                height: '0',
-                width: '0',
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
-                }
+            player = new YT.Player('ytEngine', {
+                events: { 'onReady': () => isReady = true, 'onStateChange': onStateChange }
             });
         }
 
-        function onPlayerReady(event) {
-            isPlayerReady = true;
-            console.log("YouTube Player is ready!");
-        }
-
-        async function performSearch() {
-            const q = document.getElementById('searchInput').value;
-            if(!q) return;
+        async function executeSearch() {
+            const q = document.getElementById('mainSearch').value;
             const res = await fetch(`${API_BASE}/search?query=${encodeURIComponent(q)}`);
             const data = await res.json();
-            const box = document.getElementById('searchResults');
-            box.innerHTML = '';
-            data.data.forEach(s => {
-                const img = s.thumbnails[s.thumbnails.length-1].url;
-                box.innerHTML += `
-                <div class="song-item" onclick="initiatePlay('${s.videoId}', '${s.title.replace(/'/g,"")}', '${img}', '${s.artists[0].name}')">
-                    <img src="${img}">
-                    <div class="details"><div class="title">${s.title}</div><div class="artist">${s.artists[0].name}</div></div>
+            const out = document.getElementById('searchOutput');
+            out.innerHTML = '';
+            data.data.forEach((s, i) => {
+                // High Quality Thumbnail Trick
+                const thumb = s.thumbnails[s.thumbnails.length-1].url.replace('w60-h60', 'w500-h500');
+                out.innerHTML += `
+                <div class="song-card" onclick="startPlay('${s.videoId}', '${s.title.replace(/'/g,"")}', '${thumb}', '${s.artists[0].name}')">
+                    <img src="${thumb}">
+                    <div class="info-small"><span class="t">${s.title}</span><span class="a">${s.artists[0].name}</span></div>
                 </div>`;
             });
         }
 
-        function initiatePlay(id, title, thumb, artist) {
-            if(!isPlayerReady) {
-                alert("YouTube Player is still loading... please wait a second.");
-                return;
+        function startPlay(id, title, thumb, artist) {
+            if(!isReady) return;
+            document.getElementById('bigTitle').innerText = title;
+            document.getElementById('miniT').innerText = title;
+            document.getElementById('bigArtist').innerText = artist;
+            document.getElementById('miniA').innerText = artist;
+            document.getElementById('bigArt').src = thumb;
+            document.getElementById('miniArt').src = thumb;
+            
+            player.loadVideoById(id);
+            document.getElementById('masterPlay').className = "fas fa-pause-circle play-trigger";
+            
+            // Animation Trigger
+            const ex = document.getElementById('extendedView');
+            ex.classList.remove('zoom'); void ex.offsetWidth; ex.classList.add('zoom');
+
+            fetchLyrics(id);
+            fetchQueue(id);
+        }
+
+        async function fetchLyrics(id) {
+            const box = document.getElementById('lyricsBox');
+            box.innerHTML = '<span style="color:var(--primary)">Fetching lyrics...</span>';
+            const res = await fetch(`${API_BASE}/lyrics/${id}`);
+            const data = await res.json();
+            box.innerText = data.data || "Lyrics not found for this masterpiece.";
+        }
+
+        async function fetchQueue(id) {
+            const res = await fetch(`${API_BASE}/suggestions/${id}`);
+            const data = await res.json();
+            currentQueue = data.data; // Store for auto-play
+            currentIndex = 0;
+        }
+
+        function playNext() {
+            if(currentQueue.length > 0) {
+                currentIndex++;
+                const s = currentQueue[currentIndex];
+                const t = s.thumbnail[s.thumbnail.length-1].url.replace('w60-h60', 'w500-h500');
+                startPlay(s.videoId, s.title, t, s.artists[0].name);
             }
-
-            // UI Update
-            document.getElementById('displayTitle').innerText = title;
-            document.getElementById('miniTitle').innerText = title;
-            document.getElementById('displayArtist').innerText = artist;
-            document.getElementById('miniArtist').innerText = artist;
-            document.getElementById('displayThumb').src = thumb;
-            document.getElementById('miniThumb').src = thumb;
-            document.getElementById('mainScroll').scrollTop = 0;
-
-            // Start Playback
-            ytPlayer.loadVideoById(id);
-            document.getElementById('masterPlay').className = "fas fa-pause-circle play-btn";
-
-            // Data Fetch
-            getLyrics(id);
-            getQueue(id);
         }
 
-        async function getLyrics(id) {
-            const container = document.getElementById('lyricsContent');
-            container.innerText = "Loading lyrics...";
-            try {
-                const res = await fetch(`${API_BASE}/lyrics/${id}`);
-                const data = await res.json();
-                container.innerText = data.data || "Lyrics not found for this track.";
-            } catch(e) { container.innerText = "Error loading lyrics."; }
+        function playPrev() {
+            if(currentIndex > 0) {
+                currentIndex--;
+                const s = currentQueue[currentIndex];
+                const t = s.thumbnail[s.thumbnail.length-1].url.replace('w60-h60', 'w500-h500');
+                startPlay(s.videoId, s.title, t, s.artists[0].name);
+            }
         }
 
-        async function getQueue(id) {
-            const list = document.getElementById('queueList');
-            list.innerHTML = '<p style="color:var(--primary); font-size:12px;">Tailoring your queue...</p>';
-            try {
-                const res = await fetch(`${API_BASE}/suggestions/${id}`);
-                const data = await res.json();
-                list.innerHTML = '';
-                data.data.forEach(s => {
-                    const t = s.thumbnail[0].url;
-                    list.innerHTML += `
-                    <div class="song-item" onclick="initiatePlay('${s.videoId}', '${s.title.replace(/'/g,"")}', '${t}', '${s.artists[0].name}')">
-                        <img src="${t}">
-                        <div class="details"><div class="title">${s.title}</div><div class="artist">${s.artists[0].name}</div></div>
-                    </div>`;
-                });
-            } catch(e) { list.innerHTML = 'Queue unavailable.'; }
+        function toggleRepeat() {
+            isRepeat = !isRepeat;
+            document.getElementById('repeatBtn').classList.toggle('active-mode');
+        }
+
+        function onStateChange(e) {
+            if(e.data == YT.PlayerState.PLAYING) setInterval(syncTimeline, 500);
+            if(e.data == YT.PlayerState.ENDED) {
+                if(isRepeat) player.playVideo();
+                else playNext(); // Auto Play Next Logic
+            }
+        }
+
+        function syncTimeline() {
+            if(!player || !player.getCurrentTime) return;
+            const cur = player.getCurrentTime(), dur = player.getDuration();
+            if(dur > 0) {
+                document.getElementById('timeLine').style.width = (cur/dur)*100 + "%";
+                document.getElementById('timeStart').innerText = format(cur);
+                document.getElementById('timeEnd').innerText = format(dur);
+            }
+        }
+
+        function format(s) {
+            const m = Math.floor(s/60), r = Math.floor(s%60);
+            return `${m}:${r < 10 ? '0' : ''}${r}`;
         }
 
         function handleToggle() {
-            if(!isPlayerReady) return;
-            const state = ytPlayer.getPlayerState();
-            if(state == 1) { 
-                ytPlayer.pauseVideo(); 
-                document.getElementById('masterPlay').className = "fas fa-play-circle play-btn";
-            } else { 
-                ytPlayer.playVideo(); 
-                document.getElementById('masterPlay').className = "fas fa-pause-circle play-btn";
-            }
+            const s = player.getPlayerState();
+            if(s == 1) { player.pauseVideo(); document.getElementById('masterPlay').className = "fas fa-play-circle play-trigger"; }
+            else { player.playVideo(); document.getElementById('masterPlay').className = "fas fa-pause-circle play-trigger"; }
         }
 
-        function onPlayerStateChange(e) {
-            if(e.data == YT.PlayerState.PLAYING) {
-                setInterval(updateUIProgress, 500);
-            }
-        }
-
-        function updateUIProgress() {
-            if(!ytPlayer || !ytPlayer.getCurrentTime) return;
-            const curr = ytPlayer.getCurrentTime();
-            const dur = ytPlayer.getDuration();
-            if(dur > 0) {
-                const per = (curr / dur) * 100;
-                document.getElementById('progLine').style.width = per + "%";
-                document.getElementById('cTime').innerText = formatTime(curr);
-                document.getElementById('tTime').innerText = formatTime(dur);
-            }
-        }
-
-        function handleSeek(e) {
-            if(!isPlayerReady) return;
-            const bar = e.currentTarget;
-            const per = e.offsetX / bar.clientWidth;
-            ytPlayer.seekTo(per * ytPlayer.getDuration());
-        }
-
-        function formatTime(s) {
-            const m = Math.floor(s/60);
-            const r = Math.floor(s%60);
-            return `${m}:${r < 10 ? '0' : ''}${r}`;
+        function jumpTo(e) {
+            const per = e.offsetX / e.currentTarget.clientWidth;
+            player.seekTo(per * player.getDuration());
         }
     </script>
 </body>
